@@ -1,0 +1,48 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+
+  cloud:
+    gateway:
+      default-filters:
+          - RemoveRequestHeader=Cookie
+          - RemoveRequestHeader=Set-Cookie
+          - RemoveRequestHeader=Cookie2
+          - RemoveRequestHeader=XSRF-TOKEN
+          - RemoveRequestHeader=X-XSRF-TOKEN
+
+      routes:
+        - id: authservice-route
+          uri: lb://AUTHSERVICE
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=0
+        - id: reporting-service-route
+          uri: lb://REPORTING
+          predicates:
+            - Path=/reporting/**
+            - Method=GET
+          filters:
+            - name: JwtAuthFilter
+              args:
+                requiredRole: ROLE_USER
+        - id: chatgpt-service-route
+          uri: lb://CHATGPT
+          predicates:
+            - Path=/gpt/**
+        - id: payment-service-route
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/payments/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.56.128:8761/eureka/
+
+  instance:
+    prefer-ip-address: true

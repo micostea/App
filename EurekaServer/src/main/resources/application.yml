@@ -1,0 +1,12 @@
+server:
+  port: 8761
+  address: 192.168.56.128
+
+spring:
+  application:
+    name: eureka-server
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
